@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VCE Logistics — Dispatch Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #09090b;
+    --surface: #0f0f12;
+    --surface-2: #141418;
+    --surface-3: #1a1a20;
+    --border: rgba(255,255,255,0.055);
+    --border-hover: rgba(255,255,255,0.11);
+    --text: #ededef;
+    --text-secondary: #a0a0ab;
+    --muted: #4a4a56;
+    --accent: #9b1c1c;
+    --accent-light: #b91c1c;
+    --accent-dim: rgba(155,28,28,0.1);
+    --accent-glow: rgba(155,28,28,0.05);
+    --accent-border: rgba(155,28,28,0.25);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle vignette top glow */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 320px;
+    background: radial-gradient(ellipse 60% 100% at 50% 0%, rgba(155,28,28,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Noise texture overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 28px 100px;
+  }
+
+  /* ── Hero Header ── */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 64px 0 52px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 60px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .logo-lockup {
+    margin-bottom: 20px;
+  }
+
+  .logo-lockup img {
+    height: 72px;
+    filter: brightness(0) invert(1) opacity(0.88);
+    transition: opacity 0.3s;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .hero-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 16px auto 0;
+    width: 240px;
+  }
+
+  .hero-divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-hover));
+  }
+
+  .hero-divider-line.right {
+    background: linear-gradient(270deg, transparent, var(--border-hover));
+  }
+
+  .hero-divider-diamond {
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    padding: 5px 14px;
+    border-radius: 2px;
+    margin-top: 18px;
+  }
+
+  /* ── Section Label ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    animation: fadeUp 0.5s 0.15s ease both;
+  }
+
+  .section-label-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .section-label-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── EOS Hero Card ── */
+  .eos-hero {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--surface-2);
+    border: 1px solid var(--accent-border);
+    border-radius: 3px;
+    padding: 36px 44px 36px 52px;
+    margin-bottom: 52px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+    animation: fadeUp 0.55s 0.05s ease both;
+  }
+
+  .eos-hero::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent-light), var(--accent));
+  }
+
+  .eos-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 55% 100% at 95% 50%, rgba(155,28,28,0.055) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .eos-hero:hover {
+    border-color: rgba(185,28,28,0.45);
+    box-shadow: 0 0 50px rgba(155,28,28,0.08), 0 4px 24px rgba(0,0,0,0.5);
+    transform: translateY(-2px);
+  }
+
+  .eos-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .eos-content {}
+
+  .eos-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+
+  .eos-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .eos-desc {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+
+  .eos-cta {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .eos-cta-btn {
+    background: var(--accent);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border-radius: 2px;
+    border: 1px solid rgba(185,28,28,0.5);
+    white-space: nowrap;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .eos-hero:hover .eos-cta-btn {
+    background: var(--accent-light);
+    box-shadow: 0 4px 20px rgba(155,28,28,0.35);
+  }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 52px;
+    animation: fadeUp 0.55s 0.2s ease both;
+  }
+
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 26px 28px 22px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s, background 0.25s, transform 0.2s, box-shadow 0.25s;
+  }
+
+  .card:hover {
+    background: var(--surface-2);
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 36px rgba(0,0,0,0.45);
+  }
+
+  /* Hover shimmer line at top */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover::before { opacity: 1; }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-pip {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .card-pip.c-red    { background: #9b1c1c; }
+  .card-pip.c-amber  { background: #92400e; }
+  .card-pip.c-slate  { background: #334155; }
+  .card-pip.c-stone  { background: #44403c; }
+  .card-pip.c-zinc   { background: #3f3f46; }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    margin-bottom: 8px;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    flex: 1;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-action {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .card:hover .card-action { color: var(--accent-light); }
+
+  .card-arrow {
+    font-size: 14px;
+    color: var(--muted);
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .card:hover .card-arrow {
+    color: var(--accent-light);
+    transform: translate(2px, -2px);
+  }
+
+  /* Red accent card */
+  .card.c-accent {
+    border-color: rgba(155,28,28,0.18);
+  }
+  .card.c-accent:hover {
+    border-color: rgba(185,28,28,0.35);
+    box-shadow: 0 8px 36px rgba(155,28,28,0.07);
+  }
+
+  /* ── Thin horizontal divider ── */
+  .spacer { margin-bottom: 52px; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .footer-logo {
+    height: 18px;
+    filter: brightness(0) invert(1) opacity(0.25);
+  }
+
+  .footer-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    color: rgba(74,74,86,0.5);
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero     { animation: fadeUp 0.55s ease both; }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .eos-inner { flex-direction: column; align-items: flex-start; }
+    .eos-title { font-size: 24px; }
+    .eos-hero { padding: 28px 24px 28px 34px; }
+    .hero { padding: 48px 0 40px; }
+    .logo-lockup img { height: 56px; }
+    .container { padding: 0 20px 80px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── Hero Header ── -->
+  <div class="hero">
+    <div class="logo-lockup">
+      <img src="https://img1.wsimg.com/isteam/ip/09d15051-3d17-4a7a-9c5c-0882f1b02ba5/VCElogo_large.png" alt="VCE Logistics">
+    </div>
+    <div class="hero-title">Dispatch Operations Portal</div>
+    <div class="hero-divider">
+      <div class="hero-divider-line"></div>
+      <div class="hero-divider-diamond"></div>
+      <div class="hero-divider-line right"></div>
+    </div>
+    <div class="nav-badge">Internal Use Only</div>
+  </div>
+
+  <!-- ── EOS — Priority ── -->
+  <div class="section-label">
+    <span class="section-label-text">Priority</span>
+    <div class="section-label-line"></div>
+  </div>
+
+  <a href="https://docs.google.com/spreadsheets/d/1jI49Jhnw3zETwVXQH0s7iH8xfEnpEUCCIOi-7MBCBvE/edit?gid=695537296#gid=695537296" target="_blank" class="eos-hero">
+    <div class="eos-inner">
+      <div class="eos-content">
+        <div class="eos-eyebrow">Required — Complete Before Clock-Out</div>
+        <div class="eos-title">End of Shift (EOS)</div>
+        <div class="eos-desc">Submit shift summary, log route details, and confirm all required fields before signing off for the day.</div>
+      </div>
+      <div class="eos-cta">
+        <div class="eos-cta-btn">Open EOS &nbsp;&#8599;</div>
+      </div>
+    </div>
+  </a>
+
+  <!-- ── Operations ── -->
+  <div class="section-label">
+    <span class="section-label-text">Operations</span>
+    <div class="section-label-line"></div>
+  </div>
+
+  <div class="grid grid-2">
+
+    <a href="https://vcedvc2.github.io/vce-driver-portal/" target="_blank" class="card">
+      <div class="card-meta">
+        <div class="card-pip c-slate"></div>
+        <span class="card-tag">Driver Access</span>
+      </div>
+      <div class="card-title">Driver Portal</div>
+      <div class="card-desc">Van inspections, gas card PIN lookup, and driver-facing end of shift form.</div>
+      <div class="card-footer">
+        <span class="card-action">Open Portal</span>
+        <span class="card-arrow">&#8599;</span>
+      </div>
+    </a>
+
+    <a href="https://docs.google.com/spreadsheets/d/11C60r8Qub27rEWZsPN9XL9gqpuB2PGlLWSTk9GAoC24/edit?gid=0#gid=0" target="_blank" class="card">
+      <div class="card-meta">
+        <div class="card-pip c-red"></div>
+        <span class="card-tag">Fleet</span>
+      </div>
+      <div class="card-title">Van Rotation &amp; Last Used</div>
+      <div class="card-desc">View and update van assignments, rotation schedule, and last-used records.</div>
+      <div class="card-footer">
+        <span class="card-action">View Sheet</span>
+        <span class="card-arrow">&#8599;</span>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbwBGCRC0P4JEtvJerFDQO06FZJAqneIXNMd4K_cqXw5DRRpWiaeFVsRzpydm8_fQ5WngQ/exec" target="_blank" class="card">
+      <div class="card-meta">
+        <div class="card-pip c-stone"></div>
+        <span class="card-tag">Inventory</span>
+      </div>
+      <div class="card-title">DA Uniform Inventory</div>
+      <div class="card-desc">Manage driver associate uniform stock levels and track issued items.</div>
+      <div class="card-footer">
+        <span class="card-action">Open Inventory</span>
+        <span class="card-arrow">&#8599;</span>
+      </div>
+    </a>
+
+    <a href="https://docs.google.com/document/d/1biH2VvBFZvQ1RG_icUTTn3B_SPu6PdUwyz_OVBv4Aus/edit?tab=t.0" target="_blank" class="card c-accent">
+      <div class="card-meta">
+        <div class="card-pip c-red"></div>
+        <span class="card-tag">Compliance</span>
+      </div>
+      <div class="card-title">Missing Van Inspection Pictures</div>
+      <div class="card-desc">Review which DAs have outstanding pre-shift inspection photo submissions.</div>
+      <div class="card-footer">
+        <span class="card-action">Open Doc</span>
+        <span class="card-arrow">&#8599;</span>
+      </div>
+    </a>
+
+    <a href="https://docs.google.com/document/d/1xxqOqNneU7ULpx1_eQkgLGFpMBsHELKQoGxpy9GGYJA/edit?usp=sharing" target="_blank" class="card" style="grid-column: 1 / -1;">
+      <div class="card-meta">
+        <div class="card-pip c-amber"></div>
+        <span class="card-tag">Daily Planning</span>
+      </div>
+      <div class="card-title">Daily Van Sorter</div>
+      <div class="card-desc">Sort and assign today's vans from the daily planner. Use at the start of each shift to organize van assignments before dispatch.</div>
+      <div class="card-footer">
+        <span class="card-action">Open Planner</span>
+        <span class="card-arrow">&#8599;</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ── Finance & Records ── --> -->
+  <div class="section-label">
+    <span class="section-label-text">Finance &amp; Records</span>
+    <div class="section-label-line"></div>
+  </div>
+
+  <div class="grid grid-3">
+
+    <a href="https://docs.google.com/spreadsheets/d/1-i6OgN2SCEDA9Df3nPP_StioGdHgmGNNBSrQ9Fuq-q4/edit?gid=394481758#gid=394481758" target="_blank" class="card">
+      <div class="card-meta">
+        <div class="card-pip c-zinc"></div>
+        <span class="card-tag">Finance</span>
+      </div>
+      <div class="card-title">Gas Receipt Log</div>
+      <div class="card-desc">Spreadsheet for recording and tracking all fuel receipts.</div>
+      <div class="card-footer">
+        <span class="card-action">Open Sheet</span>
+        <span class="card-arrow">&#8599;</span>
+      </div>
+    </a>
+
+    <a href="https://drive.google.com/drive/u/0/folders/1fft7IXkC-UZc2juudGKGx9p3wLEqteFV" target="_blank" class="card">
+      <div class="card-meta">
+        <div class="card-pip c-zinc"></div>
+        <span class="card-tag">Storage</span>
+      </div>
+      <div class="card-title">Gas Receipt Images</div>
+      <div class="card-desc">Drive folder containing uploaded fuel receipt photographs.</div>
+      <div class="card-footer">
+        <span class="card-action">Open Drive</span>
+        <span class="card-arrow">&#8599;</span>
+      </div>
+    </a>
+
+    <a href="https://drive.google.com/drive/u/0/folders/1GUV3PaH7m4hUr-_1Lm80TKhET-ryYrLS" target="_blank" class="card">
+      <div class="card-meta">
+        <div class="card-pip c-zinc"></div>
+        <span class="card-tag">Archive</span>
+      </div>
+      <div class="card-title">EOS Sheets Drive</div>
+      <div class="card-desc">Google Drive folder storing all completed end of shift report sheets.</div>
+      <div class="card-footer">
+        <span class="card-action">Open Drive</span>
+        <span class="card-arrow">&#8599;</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-left">
+      <img class="footer-logo" src="https://img1.wsimg.com/isteam/ip/09d15051-3d17-4a7a-9c5c-0882f1b02ba5/VCElogo_large.png" alt="">
+      <span class="footer-copy">&copy; 2025 VCE Logistics. All rights reserved.</span>
+    </div>
+    <span class="footer-right">Dispatch Portal v2.0</span>
+  </footer>
+
+</div>
+</body>
+</html>
