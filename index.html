@@ -44,56 +44,57 @@
     z-index: 0;
   }
 
+  /* Full width, padding on sides only — no artificial max-width cutting off space */
   .wrap {
     position: relative;
     z-index: 1;
-    max-width: 860px;
+    max-width: 1100px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 32px 100px;
+    padding: 0 48px 100px;
   }
 
-  /* HERO */
+  /* ── HERO ── */
   .hero {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 72px 0 56px;
+    padding: 64px 0 52px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 64px;
+    margin-bottom: 56px;
     animation: up 0.6s ease both;
   }
 
-  .logo-box {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 16px 32px;
-    margin-bottom: 28px;
+  /* Logo: no white box — mix-blend-mode makes it work on dark bg */
+  .logo-wrap {
+    margin-bottom: 24px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 40px rgba(0,0,0,0.6);
   }
 
-  .logo-box img {
-    height: 80px;
+  .logo-wrap img {
+    height: 90px;
     width: auto;
     display: block;
+    mix-blend-mode: screen;
+    filter: brightness(1.1) contrast(1.05);
   }
 
   .hero-company {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
-    letter-spacing: 0.45em;
+    letter-spacing: 0.5em;
     text-transform: uppercase;
     color: var(--text-sub);
     margin-bottom: 8px;
   }
 
   .hero-portal {
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text);
     margin-bottom: 22px;
@@ -103,7 +104,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    width: 200px;
+    width: 180px;
   }
 
   .hero-rule-line {
@@ -133,12 +134,12 @@
     border-radius: 2px;
   }
 
-  /* SECTION LABEL */
+  /* ── SECTION LABEL ── */
   .sec {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     animation: up 0.5s 0.1s ease both;
   }
 
@@ -157,7 +158,7 @@
     background: var(--border);
   }
 
-  /* EOS CARD */
+  /* ── EOS CARD ── */
   .eos {
     display: block;
     text-decoration: none;
@@ -165,8 +166,8 @@
     background: var(--surface-2);
     border: 1px solid var(--accent-border);
     border-radius: 4px;
-    padding: 40px 48px 40px 56px;
-    margin-bottom: 56px;
+    padding: 38px 44px 38px 52px;
+    margin-bottom: 52px;
     position: relative;
     overflow: hidden;
     transition: border-color 0.3s, box-shadow 0.3s, transform 0.25s;
@@ -217,7 +218,7 @@
     font-weight: 700;
     letter-spacing: 0.02em;
     color: var(--text);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     line-height: 1.2;
   }
 
@@ -226,7 +227,6 @@
     font-weight: 300;
     color: var(--text-sub);
     line-height: 1.65;
-    max-width: 480px;
   }
 
   .eos-btn {
@@ -250,18 +250,18 @@
     box-shadow: 0 4px 24px rgba(160,16,16,0.4);
   }
 
-  /* GRID */
+  /* ── GRID ── */
   .grid {
     display: grid;
     gap: 12px;
-    margin-bottom: 56px;
+    margin-bottom: 52px;
     animation: up 0.55s 0.18s ease both;
   }
 
   .g2 { grid-template-columns: 1fr 1fr; }
   .g3 { grid-template-columns: 1fr 1fr 1fr; }
 
-  /* CARD */
+  /* ── CARD ── */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -379,7 +379,7 @@
 
   .span-full { grid-column: 1 / -1; }
 
-  /* FOOTER */
+  /* ── FOOTER ── */
   footer {
     border-top: 1px solid var(--border);
     padding-top: 28px;
@@ -391,21 +391,16 @@
   .foot-left {
     display: flex;
     align-items: center;
-    gap: 14px;
-  }
-
-  .foot-logo {
-    background: #fff;
-    border-radius: 6px;
-    padding: 4px 10px;
-    display: inline-flex;
-    align-items: center;
+    gap: 12px;
   }
 
   .foot-logo img {
-    height: 20px;
+    height: 28px;
     width: auto;
     display: block;
+    mix-blend-mode: screen;
+    filter: brightness(0.7);
+    opacity: 0.5;
   }
 
   .foot-copy {
@@ -420,22 +415,31 @@
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
-    color: rgba(80,80,96,0.5);
+    color: rgba(80,80,96,0.4);
   }
 
+  /* ── ANIMATION ── */
   @keyframes up {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  @media (max-width: 680px) {
-    .g2, .g3 { grid-template-columns: 1fr; }
-    .eos-row  { flex-direction: column; align-items: flex-start; }
-    .eos      { padding: 30px 24px 30px 36px; }
-    .eos-title { font-size: 22px; }
-    .hero     { padding: 48px 0 40px; }
-    .logo-box img { height: 60px; }
-    .wrap     { padding: 0 20px 80px; }
+  /* ── RESPONSIVE ── */
+  @media (max-width: 860px) {
+    .wrap { padding: 0 24px 80px; }
+    .g3   { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .wrap       { padding: 0 16px 80px; }
+    .g2, .g3    { grid-template-columns: 1fr; }
+    .eos-row    { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .eos        { padding: 28px 20px 28px 32px; }
+    .eos-title  { font-size: 22px; }
+    .hero       { padding: 44px 0 40px; }
+    .logo-wrap img { height: 70px; }
+    .hero-portal   { font-size: 24px; }
+    .eos-btn    { width: 100%; text-align: center; }
   }
 </style>
 </head>
@@ -444,7 +448,7 @@
 
   <!-- HERO -->
   <div class="hero">
-    <div class="logo-box">
+    <div class="logo-wrap">
       <img src="logo.png" alt="VCE Logistics">
     </div>
     <div class="hero-company">VCE Logistics</div>
