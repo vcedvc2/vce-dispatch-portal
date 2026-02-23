@@ -631,10 +631,11 @@
 
 #vce-widget {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 16px;
+  right: 12px;
   z-index: 99999;
-  width: 296px;
+  width: calc(100vw - 24px);
+  max-width: 296px;
   font-family: 'Outfit', sans-serif;
 
   --vw-bg:       #08080a;
