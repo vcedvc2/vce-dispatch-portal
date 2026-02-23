@@ -609,7 +609,753 @@
     </div>
     <span class="foot-ver">Dispatch Portal v3.0</span>
   </footer>
+<!--
+  VCE LOGISTICS — OPS WIDGET
+  Paste just before </body> in your dispatch portal HTML.
+  One thing to configure: set VCE_API_URL to your Apps Script Web App URL.
+
+  Van Rotation Sheet ID (already known):
+  11C60r8Qub27rEWZsPN9XL9gqpuB2PGlLWSTk9GAoC24
+-->
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+#vce-widget,
+#vce-widget *,
+#vce-widget *::before,
+#vce-widget *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#vce-widget {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  width: 296px;
+  font-family: 'Outfit', sans-serif;
+
+  --vw-bg:       #08080a;
+  --vw-surf:     #101014;
+  --vw-surf2:    #16161c;
+  --vw-border:   rgba(255,255,255,0.07);
+  --vw-borderh:  rgba(255,255,255,0.14);
+  --vw-text:     #f0f0f2;
+  --vw-sub:      #9898a8;
+  --vw-muted:    #505060;
+  --vw-acc:      #a01010;
+  --vw-accm:     #c41c1c;
+  --vw-accd:     rgba(160,16,16,0.12);
+  --vw-accb:     rgba(160,16,16,0.28);
+  --vw-warn:     #8b5e1a;
+  --vw-warnl:    #c4891c;
+  --vw-warnd:    rgba(139,94,26,0.15);
+  --vw-mono:     'DM Mono', monospace;
+}
+
+/* ── COLLAPSED TAB ── */
+#vw-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--vw-surf2);
+  border: 1px solid var(--vw-accb);
+  border-radius: 3px;
+  padding: 12px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  color: var(--vw-text);
+  position: relative;
+  overflow: hidden;
+}
+
+#vw-tab::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--vw-accm), var(--vw-acc));
+}
+
+#vw-tab:hover {
+  border-color: rgba(196,28,28,0.5);
+  box-shadow: 0 4px 24px rgba(160,16,16,0.15);
+}
+
+#vw-live {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vw-accm);
+  box-shadow: 0 0 6px var(--vw-acc);
+  flex-shrink: 0;
+  animation: vwPulse 2.5s ease infinite;
+}
+
+@keyframes vwPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+
+#vw-tab-label {
+  font-family: var(--vw-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vw-accm);
+  flex: 1;
+}
+
+#vw-chips {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.vwc {
+  font-family: var(--vw-mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 2px;
+  display: none;
+  letter-spacing: 0.05em;
+}
+
+.vwc.urg {
+  background: var(--vw-accd);
+  color: var(--vw-accm);
+  border: 1px solid var(--vw-accb);
+}
+
+.vwc.wrn {
+  background: var(--vw-warnd);
+  color: var(--vw-warnl);
+  border: 1px solid rgba(139,94,26,0.3);
+}
+
+.vwc.drv {
+  background: rgba(80,80,96,0.15);
+  color: var(--vw-sub);
+  border: 1px solid rgba(80,80,96,0.25);
+}
+
+#vw-chev {
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  color: var(--vw-muted);
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+#vce-widget.open #vw-chev {
+  transform: rotate(180deg);
+}
+
+/* ── PANEL ── */
+#vw-panel {
+  background: var(--vw-bg);
+  border: 1px solid var(--vw-accb);
+  border-radius: 3px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.7), 0 0 60px rgba(160,16,16,0.06);
+  position: relative;
+}
+
+#vw-panel::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--vw-accm), var(--vw-acc));
+  z-index: 1;
+}
+
+#vce-widget.open #vw-panel {
+  max-height: 520px;
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── PANEL HEADER ── */
+#vw-ph {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 12px 18px;
+  border-bottom: 1px solid var(--vw-border);
+  background: var(--vw-surf2);
+}
+
+#vw-ph-title {
+  font-family: var(--vw-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--vw-accm);
+}
+
+#vw-ph-time {
+  font-family: var(--vw-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--vw-muted);
+}
+
+/* ── STAT STRIP ── */
+#vw-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--vw-border);
+}
+
+.vws {
+  padding: 12px 14px;
+  border-right: 1px solid var(--vw-border);
+  position: relative;
+}
+
+.vws:last-child { border-right: none; }
+
+.vws::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+}
+
+.vws.su::after { background: var(--vw-acc); }
+.vws.sw::after { background: var(--vw-warnl); }
+.vws.sd::after { background: var(--vw-muted); }
+
+.vws-n {
+  font-family: var(--vw-mono);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.vws.su .vws-n { color: var(--vw-accm); }
+.vws.sw .vws-n { color: var(--vw-warnl); }
+.vws.sd .vws-n { color: var(--vw-sub); }
+
+.vws-l {
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--vw-muted);
+  line-height: 1.4;
+}
+
+/* ── TABS ── */
+#vw-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--vw-border);
+  background: var(--vw-surf2);
+}
+
+.vwt {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 9px 0;
+  cursor: pointer;
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vw-muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.vwt:hover { color: var(--vw-sub); }
+
+.vwt.on {
+  color: var(--vw-accm);
+  border-bottom-color: var(--vw-acc);
+}
+
+/* ── LIST ── */
+#vw-list {
+  overflow-y: auto;
+  max-height: 302px;
+  padding: 6px 8px 6px 10px;
+}
+
+#vw-list::-webkit-scrollbar { width: 2px; }
+#vw-list::-webkit-scrollbar-track { background: transparent; }
+#vw-list::-webkit-scrollbar-thumb { background: var(--vw-border); }
+
+/* ── SECTION LABEL ── */
+.vwsl {
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--vw-muted);
+  padding: 8px 4px 4px;
+  border-bottom: 1px solid var(--vw-border);
+  margin-bottom: 4px;
+}
+
+/* ── VAN ROW ── */
+.vwr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 2px;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.vwr:hover {
+  background: var(--vw-surf2);
+  border-color: var(--vw-border);
+}
+
+.vw-bar {
+  width: 2px;
+  height: 28px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.vw-bar.u { background: var(--vw-acc); }
+.vw-bar.w { background: var(--vw-warnl); }
+
+.vw-vid {
+  font-family: var(--vw-mono);
+  font-size: 11px;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vw-text);
+  letter-spacing: 0.04em;
+}
+
+.vw-right { text-align: right; flex-shrink: 0; }
+
+.vw-days {
+  font-family: var(--vw-mono);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.vw-days.u { color: var(--vw-accm); }
+.vw-days.w { color: var(--vw-warnl); }
+
+.vw-since {
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  color: var(--vw-muted);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+/* ── DRIVER ROWS ── */
+.vwd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 2px;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.vwd:hover {
+  background: var(--vw-surf2);
+  border-color: var(--vw-border);
+}
+
+.vw-av {
+  width: 26px;
+  height: 26px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  font-weight: 500;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+}
+
+.vw-av.m { background: var(--vw-accd); color: var(--vw-accm); border: 1px solid var(--vw-accb); }
+.vw-av.r { background: var(--vw-warnd); color: var(--vw-warnl); border: 1px solid rgba(139,94,26,0.3); }
+
+.vw-dn {
+  font-size: 12px;
+  font-weight: 400;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vw-text);
+}
+
+.vw-dtag {
+  font-family: var(--vw-mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.vw-dtag.m { background: var(--vw-accd); color: var(--vw-accm); }
+.vw-dtag.r { background: var(--vw-warnd); color: var(--vw-warnl); }
+
+/* ── STATES ── */
+.vw-clear {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 16px;
+  gap: 10px;
+  text-align: center;
+}
+
+.vw-clear-gem {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--vw-muted);
+  transform: rotate(45deg);
+  opacity: 0.4;
+}
+
+.vw-clear-txt {
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vw-muted);
+}
+
+.vw-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 36px;
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vw-muted);
+}
+
+.vw-spin {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--vw-border);
+  border-top-color: var(--vw-accm);
+  border-radius: 50%;
+  animation: vwSpin 0.75s linear infinite;
+}
+
+@keyframes vwSpin { to { transform: rotate(360deg); } }
+
+.vw-err {
+  margin: 10px;
+  padding: 12px 14px;
+  background: var(--vw-accd);
+  border: 1px solid var(--vw-accb);
+  border-radius: 2px;
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--vw-accm);
+  line-height: 1.7;
+}
+
+/* ── FOOTER ── */
+#vw-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 10px 18px;
+  border-top: 1px solid var(--vw-border);
+  background: var(--vw-surf2);
+}
+
+#vw-ft-ts {
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--vw-muted);
+}
+
+#vw-rfbtn {
+  background: transparent;
+  border: 1px solid var(--vw-border);
+  color: var(--vw-muted);
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-family: var(--vw-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+#vw-rfbtn:hover {
+  border-color: var(--vw-accb);
+  color: var(--vw-accm);
+}
+</style>
+
+<!-- WIDGET -->
+<div id="vce-widget">
+
+  <div id="vw-panel">
+    <div id="vw-ph">
+      <span id="vw-ph-title">Live Operations</span>
+      <span id="vw-ph-time">—</span>
+    </div>
+
+    <div id="vw-stats">
+      <div class="vws su">
+        <div class="vws-n" id="vs-u">—</div>
+        <div class="vws-l">Urgent<br/>Vans</div>
+      </div>
+      <div class="vws sw">
+        <div class="vws-n" id="vs-w">—</div>
+        <div class="vws-l">Warning<br/>Vans</div>
+      </div>
+      <div class="vws sd">
+        <div class="vws-n" id="vs-d">—</div>
+        <div class="vws-l">Missing<br/>Uploads</div>
+      </div>
+    </div>
+
+    <div id="vw-tabs">
+      <button class="vwt on" onclick="vwTab('vans')">Van Rotation</button>
+      <button class="vwt"    onclick="vwTab('drivers')">Photo Uploads</button>
+    </div>
+
+    <div id="vw-list">
+      <div class="vw-loading"><div class="vw-spin"></div>Fetching data</div>
+    </div>
+
+    <div id="vw-foot">
+      <span id="vw-ft-ts">—</span>
+      <button id="vw-rfbtn" onclick="vwFetch()">Refresh</button>
+    </div>
+  </div>
+
+  <div id="vw-tab" onclick="vwToggle()">
+    <div id="vw-live"></div>
+    <span id="vw-tab-label">Operations</span>
+    <div id="vw-chips">
+      <span class="vwc urg" id="vwc-u">0</span>
+      <span class="vwc wrn" id="vwc-w">0</span>
+      <span class="vwc drv" id="vwc-d">0</span>
+    </div>
+    <span id="vw-chev">&#9650;</span>
+  </div>
 
 </div>
+
+<script>
+(function () {
+  // ─────────────────────────────────────────────
+  // SET YOUR WEB APP URL HERE
+  var API = "https://script.google.com/macros/s/AKfycbyPE7FInOOoK5juttIjxWIUCp_nzlFVlGaUxLZh3mNmrNxsA3nNamQDRe9m1Mcmxql9/exec";
+  // ─────────────────────────────────────────────
+
+  var _open  = false;
+  var _tab   = 'vans';
+  var _data  = null;
+  var _timer = null;
+
+  window.vwToggle = function () {
+    _open = !_open;
+    document.getElementById('vce-widget').classList.toggle('open', _open);
+  };
+
+  window.vwTab = function (t) {
+    _tab = t;
+    document.querySelectorAll('.vwt').forEach(function (b, i) {
+      b.classList.toggle('on', (t === 'vans' && i === 0) || (t === 'drivers' && i === 1));
+    });
+    if (_data) renderList(_data);
+  };
+
+  window.vwFetch = function () {
+    var dot = document.getElementById('vw-live');
+    dot.style.background = '#c41c1c';
+    dot.style.boxShadow  = '0 0 6px #a01010';
+
+    fetch(API + (API.includes('?') ? '&' : '?') + '_=' + Date.now())
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) {
+        _data = d;
+        dot.style.background = '#c41c1c';
+        dot.style.boxShadow  = '0 0 8px rgba(160,16,16,0.6)';
+
+        var ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('vw-ph-time').textContent  = ts;
+        document.getElementById('vw-ft-ts').textContent    = 'Updated ' + ts;
+
+        renderStats(d);
+        renderChips(d);
+        renderList(d);
+      })
+      .catch(function (e) {
+        dot.style.background = '#a01010';
+        document.getElementById('vw-list').innerHTML =
+          '<div class="vw-err">Cannot reach API<br/>' + esc(e.message) + '<br/><br/>Verify the Web App URL is set correctly.</div>';
+      });
+
+    clearTimeout(_timer);
+    _timer = setTimeout(vwFetch, 60000);
+  };
+
+  function renderStats(d) {
+    var s = d.summary || {};
+    var w = Math.max(0, (s.vansNeedingRotation || 0) - (s.urgentVans || 0));
+    document.getElementById('vs-u').textContent = s.urgentVans     ?? '—';
+    document.getElementById('vs-w').textContent = w;
+    document.getElementById('vs-d').textContent = s.missingDrivers ?? '—';
+  }
+
+  function renderChips(d) {
+    var s = d.summary || {};
+    var w = Math.max(0, (s.vansNeedingRotation || 0) - (s.urgentVans || 0));
+    chip('vwc-u', s.urgentVans);
+    chip('vwc-w', w);
+    chip('vwc-d', s.missingDrivers);
+  }
+
+  function chip(id, n) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent   = n;
+    el.style.display = (n && n > 0) ? 'inline-block' : 'none';
+  }
+
+  function renderList(d) {
+    document.getElementById('vw-list').innerHTML =
+      _tab === 'vans' ? buildVans(d.vans || []) : buildDrivers(d.missingUploads || {});
+  }
+
+  /* vans — urgent + warning only */
+  function buildVans(vans) {
+    var flagged = vans.filter(function (v) { return v.urgent || v.needsRotation; });
+
+    if (!flagged.length) {
+      return '<div class="vw-clear">' +
+        '<div class="vw-clear-gem"></div>' +
+        '<div class="vw-clear-txt">All vans within rotation</div>' +
+      '</div>';
+    }
+
+    var urg = flagged.filter(function (v) { return v.urgent; });
+    var wrn = flagged.filter(function (v) { return v.needsRotation && !v.urgent; });
+    var html = '';
+
+    if (urg.length) {
+      html += '<div class="vwsl">Urgent &mdash; 14 + days</div>';
+      urg.forEach(function (v) { html += vrow(v, 'u'); });
+    }
+    if (wrn.length) {
+      html += '<div class="vwsl" style="margin-top:6px;">Warning &mdash; 7&ndash;13 days</div>';
+      wrn.forEach(function (v) { html += vrow(v, 'w'); });
+    }
+    return html;
+  }
+
+  function vrow(v, c) {
+    return '<div class="vwr">' +
+      '<div class="vw-bar ' + c + '"></div>' +
+      '<div class="vw-vid">' + esc(v.id) + '</div>' +
+      '<div class="vw-right">' +
+        '<div class="vw-days ' + c + '">' + (v.days !== null ? v.days + 'd' : '—') + '</div>' +
+        '<div class="vw-since">' + esc(v.lastUsed || 'No record') + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* drivers */
+  function buildDrivers(u) {
+    if (u.error) return '<div class="vw-err">' + esc(u.error) + '</div>';
+
+    var miss = u.missing  || [];
+    var rev  = u.possible || [];
+
+    if (u.allClear || (miss.length + rev.length === 0)) {
+      return '<div class="vw-clear">' +
+        '<div class="vw-clear-gem"></div>' +
+        '<div class="vw-clear-txt">All uploads complete</div>' +
+      '</div>';
+    }
+
+    var meta = '';
+    if (u.checkType || u.date) {
+      meta = '<div style="padding:6px 4px 2px;font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:0.14em;color:#505060;">' +
+        esc((u.checkType || '') + (u.checkType && u.date ? '  \u00B7  ' : '') + (u.date || '')) +
+      '</div>';
+    }
+
+    var html = meta;
+
+    if (miss.length) {
+      html += '<div class="vwsl">Missing Upload</div>';
+      miss.forEach(function (name) {
+        var init = name.split(' ').map(function (p) { return p[0] || ''; }).slice(0, 2).join('').toUpperCase();
+        html += '<div class="vwd">' +
+          '<div class="vw-av m">' + esc(init) + '</div>' +
+          '<div class="vw-dn">' + esc(name) + '</div>' +
+          '<div class="vw-dtag m">Missing</div>' +
+        '</div>';
+      });
+    }
+
+    if (rev.length) {
+      html += '<div class="vwsl" style="margin-top:6px;">Review</div>';
+      rev.forEach(function (entry) {
+        html += '<div class="vwd">' +
+          '<div class="vw-av r">?</div>' +
+          '<div class="vw-dn">' + esc(entry) + '</div>' +
+          '<div class="vw-dtag r">Review</div>' +
+        '</div>';
+      });
+    }
+
+    return html;
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+vwFetch();
+})();
+</script>
+
 </body>
 </html>
