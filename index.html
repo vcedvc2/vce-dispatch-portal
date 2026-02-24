@@ -654,7 +654,6 @@
   background: #08080a;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease;
 }
 
 @keyframes vl-shake {
@@ -733,63 +732,72 @@ function vlSubmit() {
 }
 
 function vlTransition() {
-  var heroImg  = document.getElementById('vl-hero-img');
-  var heroRect = heroImg.getBoundingClientRect();
+  var login   = document.getElementById('vce-login');
+  var flash   = document.getElementById('vl-flash');
+  var overlay = document.getElementById('vl-transition');
+  var tLogo   = document.getElementById('vl-t-logo');
+  var tImg    = tLogo.querySelector('img');
+  var heroImg = document.getElementById('vl-hero-img');
+  var rect    = heroImg.getBoundingClientRect();
 
-  var overlay  = document.getElementById('vl-transition');
-  var tLogo    = document.getElementById('vl-t-logo');
-  var tImg     = tLogo.querySelector('img');
-
-  // Position flying logo exactly over hero logo
-  tLogo.style.position = 'fixed';
-  tLogo.style.left     = heroRect.left + 'px';
-  tLogo.style.top      = heroRect.top  + 'px';
-  tLogo.style.width    = heroRect.width  + 'px';
-  tLogo.style.height   = heroRect.height + 'px';
-  tImg.style.width     = '100%';
-  tImg.style.height    = '100%';
-  tImg.style.objectFit = 'contain';
-  tImg.style.filter    = 'drop-shadow(0 0 60px rgba(180,20,20,0.4))';
+  // Freeze flying logo at exact hero logo position
+  tLogo.style.position   = 'fixed';
+  tLogo.style.left       = rect.left + 'px';
+  tLogo.style.top        = rect.top  + 'px';
+  tLogo.style.width      = rect.width  + 'px';
+  tLogo.style.height     = rect.height + 'px';
+  tLogo.style.transition = 'none';
+  tImg.style.width       = '100%';
+  tImg.style.height      = '100%';
+  tImg.style.objectFit   = 'contain';
+  tImg.style.opacity     = '1';
+  tImg.style.filter      = 'drop-shadow(0 0 60px rgba(180,20,20,0.45))';
 
   overlay.classList.add('active');
   overlay.style.background = 'transparent';
 
-  // Fade out login behind it
-  var login = document.getElementById('vce-login');
-  login.style.transition = 'opacity 0.3s ease';
+  // Phase 1: everything except the logo fades out gently (250ms)
+  login.style.transition = 'opacity 0.35s ease';
   login.style.opacity    = '0';
-
-  // Target position: portal header logo (centered, near top)
-  var targetSize = 90;
-  var targetX    = (window.innerWidth  / 2) - (targetSize / 2);
-  var targetY    = 84; // matches portal hero padding + gap
 
   setTimeout(function() {
     login.style.display = 'none';
 
-    // Fly and shrink to portal logo position
-    tLogo.style.transition = 'left 0.7s cubic-bezier(0.76,0,0.24,1), top 0.7s cubic-bezier(0.76,0,0.24,1), width 0.7s cubic-bezier(0.76,0,0.24,1), height 0.7s cubic-bezier(0.76,0,0.24,1)';
-    tLogo.style.left   = targetX + 'px';
-    tLogo.style.top    = targetY + 'px';
-    tLogo.style.width  = targetSize + 'px';
-    tLogo.style.height = targetSize + 'px';
-    tImg.style.transition = 'filter 0.7s ease';
-    tImg.style.filter     = 'drop-shadow(0 0 16px rgba(180,20,20,0.2))';
+    // Phase 2: logo scales down + fades slightly, then a smooth dark wash comes in
+    var targetW = 90;
+    var targetH = 90;
+    var targetX = (window.innerWidth  / 2) - (targetW / 2);
+    var targetY = 84;
 
-    // Flash reveal portal
+    // Use CSS transform for butter-smooth animation (GPU accelerated)
+    var scaleX  = targetW / rect.width;
+    var scaleY  = targetH / rect.height;
+    var moveX   = targetX - rect.left;
+    var moveY   = targetY - rect.top;
+
+    tLogo.style.transformOrigin = '0 0';
+    tLogo.style.transition =
+      'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),' +
+      'opacity   0.9s cubic-bezier(0.4, 0, 0.2, 1)';
+    tLogo.style.transform  = 'translate(' + moveX + 'px, ' + moveY + 'px) scale(' + scaleX + ', ' + scaleY + ')';
+    tImg.style.transition  = 'filter 0.9s ease';
+    tImg.style.filter      = 'drop-shadow(0 0 20px rgba(180,20,20,0.2))';
+
+    // Phase 3: at peak of animation, dark overlay fades in (portal is revealed underneath)
     setTimeout(function() {
-      var flash = document.getElementById('vl-flash');
-      flash.style.transition = 'opacity 0.25s ease';
+      flash.style.transition = 'opacity 0.5s cubic-bezier(0.4,0,0.2,1)';
       flash.style.opacity    = '1';
+    }, 500);
 
-      setTimeout(function() {
-        overlay.classList.remove('active');
-        overlay.style.display = 'none';
-        flash.style.opacity   = '0';
-      }, 220);
-    }, 680);
+    // Phase 4: clean up — fade flash back out revealing portal
+    setTimeout(function() {
+      overlay.classList.remove('active');
+      overlay.style.display  = 'none';
+      flash.style.transition = 'opacity 0.6s cubic-bezier(0.4,0,0.2,1)';
+      flash.style.opacity    = '0';
+    }, 1050);
 
-  }, 260);
+  }, 300);
 }
 
 document.addEventListener('keydown', function(e) {
