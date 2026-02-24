@@ -357,6 +357,28 @@
     color: rgba(80,80,96,0.4);
   }
 
+
+  /* Amber variant for planner card */
+  .eos-amber {
+    border-color: rgba(139,94,26,0.3);
+  }
+  .eos-amber::before {
+    background: linear-gradient(180deg, #c4891c, #8b5e1a);
+  }
+  .eos-amber::after {
+    background: radial-gradient(ellipse 50% 100% at 100% 50%, rgba(139,94,26,0.06) 0%, transparent 65%);
+  }
+  .eos-amber:hover {
+    border-color: rgba(196,137,28,0.5);
+    box-shadow: 0 0 60px rgba(139,94,26,0.1), 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .eos-amber .eos-eyebrow { color: #c4891c; }
+  .eos-amber:hover .eos-btn-amber { background: #c4891c; box-shadow: 0 4px 24px rgba(139,94,26,0.4); }
+  .eos-btn-amber {
+    background: #8b5e1a;
+    border-color: rgba(196,137,28,0.4);
+  }
+
   @keyframes up {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -399,6 +421,17 @@
 
   <!-- PRIORITY -->
   <div class="sec"><span class="sec-text">Priority</span><div class="sec-line"></div></div>
+
+  <a href="https://docs.google.com/spreadsheets/d/1vstEgwq5SfD0r89a3DggSOgsWDPcq_A6pAgv2j_9wGY/edit?gid=1443632712#gid=1443632712" target="_blank" class="eos eos-amber">
+    <div class="eos-row">
+      <div>
+        <div class="eos-eyebrow">Start of Shift &mdash; Assign Before Dispatch</div>
+        <div class="eos-title">Daily Planner</div>
+        <div class="eos-desc">Assign vans and routes for today&apos;s shift. Complete before drivers are dispatched.</div>
+      </div>
+      <div class="eos-btn eos-btn-amber">Open Planner &nbsp;&#8599;</div>
+    </div>
+  </a>
 
   <a href="https://docs.google.com/spreadsheets/d/1jI49Jhnw3zETwVXQH0s7iH8xfEnpEUCCIOi-7MBCBvE/edit?gid=695537296#gid=695537296" target="_blank" class="eos">
     <div class="eos-row">
