@@ -418,7 +418,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  will-change: opacity, filter, transform;
+  will-change: opacity, filter;
 }
 
 /* Atmospheric red glow */
@@ -694,36 +694,25 @@ function vlSubmit() {
 }
 
 function vlTransition() {
-  var login = document.getElementById('vce-login');
+  var login  = document.getElementById('vce-login');
+  var heroImg = document.getElementById('vl-hero-img');
 
-  // Step 1: form content fades and slides up slightly
-  var inner  = document.querySelector('.vl-inner');
-  var footer = document.querySelector('.vl-footer');
+  // Stop the float animation so logo stays perfectly still
+  heroImg.style.animation = 'none';
 
-  inner.style.transition  = 'opacity 0.5s ease, transform 0.5s ease';
-  inner.style.opacity     = '0';
-  inner.style.transform   = 'translateY(-18px)';
-  if (footer) {
-    footer.style.transition = 'opacity 0.4s ease';
-    footer.style.opacity    = '0';
-  }
+  // Single smooth move: the whole screen blurs and fades out together
+  // No scale, no movement — pure dissolve
+  login.style.transition = 'opacity 0.75s cubic-bezier(0.4,0,1,1), filter 0.75s cubic-bezier(0.4,0,1,1)';
+  login.style.filter     = 'blur(24px)';
+  login.style.opacity    = '0';
 
-  // Step 2: login bg blurs out and fades (starts ~100ms in, peaks at 700ms)
   setTimeout(function() {
-    login.style.transition  = 'opacity 0.7s ease, filter 0.7s ease, transform 0.7s ease';
-    login.style.filter      = 'blur(18px)';
-    login.style.opacity     = '0';
-    login.style.transform   = 'scale(1.04)';
-  }, 100);
-
-  // Step 3: hide and done — portal revealed underneath
-  setTimeout(function() {
-    login.style.display = 'none';
-    // Reset styles silently for session re-use
-    login.style.filter    = '';
-    login.style.opacity   = '';
-    login.style.transform = '';
-  }, 820);
+    login.style.display    = 'none';
+    login.style.filter     = '';
+    login.style.opacity    = '';
+    login.style.transition = '';
+    heroImg.style.animation = '';
+  }, 780);
 }
 
 document.addEventListener('keydown', function(e) {
