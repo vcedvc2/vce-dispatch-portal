@@ -418,6 +418,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  will-change: opacity, filter, transform;
 }
 
 /* Atmospheric red glow */
@@ -618,43 +619,8 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── TRANSITION OVERLAY ── */
-#vl-transition {
-  position: fixed;
-  inset: 0;
-  z-index: 9999998;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  background: #050507;
-}
-
-#vl-transition.active {
-  display: flex;
-}
-
-#vl-t-logo {
-  position: absolute;
-  will-change: transform, opacity;
-}
-
-#vl-t-logo img {
-  width: 200px;
-  height: 200px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 60px rgba(180,20,20,0.4));
-}
-
-/* Final flash overlay */
-#vl-flash {
-  position: fixed;
-  inset: 0;
-  z-index: 9999999;
-  background: #08080a;
-  opacity: 0;
-  pointer-events: none;
-}
+/* ── DISSOLVE TRANSITION ── */
+/* No extra elements needed — pure CSS on the login itself */
 
 @keyframes vl-shake {
   0%,100% { transform: translateX(0); }
@@ -694,11 +660,7 @@
   <div class="vl-footer">Internal use only &mdash; VCE Logistics</div>
 </div>
 
-<!-- Transition element — logo flies to header position -->
-<div id="vl-transition">
-  <div id="vl-t-logo"><img src="logo.png" alt=""></div>
-</div>
-<div id="vl-flash"></div>
+
 
 <script>
 // ── LOGIN CREDENTIALS — change these ──
@@ -732,72 +694,36 @@ function vlSubmit() {
 }
 
 function vlTransition() {
-  var login   = document.getElementById('vce-login');
-  var flash   = document.getElementById('vl-flash');
-  var overlay = document.getElementById('vl-transition');
-  var tLogo   = document.getElementById('vl-t-logo');
-  var tImg    = tLogo.querySelector('img');
-  var heroImg = document.getElementById('vl-hero-img');
-  var rect    = heroImg.getBoundingClientRect();
+  var login = document.getElementById('vce-login');
 
-  // Freeze flying logo at exact hero logo position
-  tLogo.style.position   = 'fixed';
-  tLogo.style.left       = rect.left + 'px';
-  tLogo.style.top        = rect.top  + 'px';
-  tLogo.style.width      = rect.width  + 'px';
-  tLogo.style.height     = rect.height + 'px';
-  tLogo.style.transition = 'none';
-  tImg.style.width       = '100%';
-  tImg.style.height      = '100%';
-  tImg.style.objectFit   = 'contain';
-  tImg.style.opacity     = '1';
-  tImg.style.filter      = 'drop-shadow(0 0 60px rgba(180,20,20,0.45))';
+  // Step 1: form content fades and slides up slightly
+  var inner  = document.querySelector('.vl-inner');
+  var footer = document.querySelector('.vl-footer');
 
-  overlay.classList.add('active');
-  overlay.style.background = 'transparent';
+  inner.style.transition  = 'opacity 0.5s ease, transform 0.5s ease';
+  inner.style.opacity     = '0';
+  inner.style.transform   = 'translateY(-18px)';
+  if (footer) {
+    footer.style.transition = 'opacity 0.4s ease';
+    footer.style.opacity    = '0';
+  }
 
-  // Phase 1: everything except the logo fades out gently (250ms)
-  login.style.transition = 'opacity 0.35s ease';
-  login.style.opacity    = '0';
+  // Step 2: login bg blurs out and fades (starts ~100ms in, peaks at 700ms)
+  setTimeout(function() {
+    login.style.transition  = 'opacity 0.7s ease, filter 0.7s ease, transform 0.7s ease';
+    login.style.filter      = 'blur(18px)';
+    login.style.opacity     = '0';
+    login.style.transform   = 'scale(1.04)';
+  }, 100);
 
+  // Step 3: hide and done — portal revealed underneath
   setTimeout(function() {
     login.style.display = 'none';
-
-    // Phase 2: logo scales down + fades slightly, then a smooth dark wash comes in
-    var targetW = 90;
-    var targetH = 90;
-    var targetX = (window.innerWidth  / 2) - (targetW / 2);
-    var targetY = 84;
-
-    // Use CSS transform for butter-smooth animation (GPU accelerated)
-    var scaleX  = targetW / rect.width;
-    var scaleY  = targetH / rect.height;
-    var moveX   = targetX - rect.left;
-    var moveY   = targetY - rect.top;
-
-    tLogo.style.transformOrigin = '0 0';
-    tLogo.style.transition =
-      'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),' +
-      'opacity   0.9s cubic-bezier(0.4, 0, 0.2, 1)';
-    tLogo.style.transform  = 'translate(' + moveX + 'px, ' + moveY + 'px) scale(' + scaleX + ', ' + scaleY + ')';
-    tImg.style.transition  = 'filter 0.9s ease';
-    tImg.style.filter      = 'drop-shadow(0 0 20px rgba(180,20,20,0.2))';
-
-    // Phase 3: at peak of animation, dark overlay fades in (portal is revealed underneath)
-    setTimeout(function() {
-      flash.style.transition = 'opacity 0.5s cubic-bezier(0.4,0,0.2,1)';
-      flash.style.opacity    = '1';
-    }, 500);
-
-    // Phase 4: clean up — fade flash back out revealing portal
-    setTimeout(function() {
-      overlay.classList.remove('active');
-      overlay.style.display  = 'none';
-      flash.style.transition = 'opacity 0.6s cubic-bezier(0.4,0,0.2,1)';
-      flash.style.opacity    = '0';
-    }, 1050);
-
-  }, 300);
+    // Reset styles silently for session re-use
+    login.style.filter    = '';
+    login.style.opacity   = '';
+    login.style.transform = '';
+  }, 820);
 }
 
 document.addEventListener('keydown', function(e) {
