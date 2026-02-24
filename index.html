@@ -410,123 +410,223 @@
   position: fixed;
   inset: 0;
   z-index: 999999;
-  background: #08080a;
+  background: #050507;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* Atmospheric background */
+#vce-login::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 100% 70% at 50% 0%, rgba(140,10,10,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(100,8,8,0.12) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Subtle grid texture */
+#vce-login::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+}
+
+.vl-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
   padding: 24px;
 }
 
-#vce-login::before {
-  content: '';
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 400px;
-  background: radial-gradient(ellipse 70% 100% at 50% -10%, rgba(160,16,16,0.1) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.vl-box {
-  width: 100%;
-  max-width: 380px;
-  background: #101014;
-  border: 1px solid rgba(160,16,16,0.28);
-  border-radius: 4px;
-  padding: 40px 36px 36px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.8), 0 0 80px rgba(160,16,16,0.06);
-}
-
-.vl-box::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, #c41c1c, #a01010);
-}
-
+/* Logo — centrepiece */
 .vl-logo {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 28px;
+  margin-bottom: 12px;
+  animation: vlLogoIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  position: relative;
 }
 
 .vl-logo img {
-  height: 64px;
+  height: 120px;
   width: auto;
+  display: block;
+  filter:
+    drop-shadow(0 0 40px rgba(180,20,20,0.35))
+    drop-shadow(0 0 80px rgba(160,10,10,0.15));
+  animation: vlLogoFloat 7s ease-in-out infinite;
 }
 
-.vl-title {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.32em;
+@keyframes vlLogoFloat {
+  0%, 100% { transform: translateY(0px); filter: drop-shadow(0 0 40px rgba(180,20,20,0.35)) drop-shadow(0 0 80px rgba(160,10,10,0.15)); }
+  50%       { transform: translateY(-8px); filter: drop-shadow(0 0 56px rgba(180,20,20,0.5)) drop-shadow(0 0 100px rgba(160,10,10,0.22)); }
+}
+
+@keyframes vlLogoIn {
+  from { opacity: 0; transform: translateY(-20px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Company name */
+.vl-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.52em;
   text-transform: uppercase;
-  color: #505060;
-  text-align: center;
-  margin-bottom: 28px;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 48px;
+  animation: vlFadeUp 1s 0.2s cubic-bezier(0.16,1,0.3,1) both;
 }
 
-.vl-field {
-  margin-bottom: 14px;
+/* Divider */
+.vl-rule {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196,28,28,0.6), transparent);
+  margin-bottom: 32px;
+  animation: vlFadeUp 1s 0.25s cubic-bezier(0.16,1,0.3,1) both;
 }
+
+/* Form card */
+.vl-card {
+  width: 100%;
+  background: rgba(12,12,16,0.85);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(196,28,28,0.2);
+  border-radius: 3px;
+  padding: 28px 28px 24px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 40px 100px rgba(0,0,0,0.85),
+    0 0 0 1px rgba(255,255,255,0.02) inset;
+  animation: vlFadeUp 1s 0.35s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes vlFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.vl-card-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(160,16,16,0.6);
+  margin-bottom: 20px;
+}
+
+.vl-field { margin-bottom: 14px; }
 
 .vl-label {
   display: block;
   font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.22em;
+  font-size: 8px;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #505060;
+  color: rgba(80,80,100,0.8);
   margin-bottom: 7px;
 }
 
 .vl-input {
   width: 100%;
-  background: #08080a;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 3px;
-  padding: 11px 14px;
-  color: #f0f0f2;
+  background: rgba(5,5,7,0.7);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 2px;
+  padding: 11px 13px;
+  color: #e8e8ec;
   font-family: 'DM Mono', monospace;
   font-size: 12px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  -webkit-appearance: none;
 }
 
-.vl-input:focus { border-color: rgba(160,16,16,0.5); }
+.vl-input:focus {
+  border-color: rgba(160,16,16,0.5);
+  box-shadow: 0 0 0 3px rgba(160,16,16,0.08);
+}
+
+.vl-input[readonly] {
+  color: rgba(255,255,255,0.2);
+  cursor: default;
+  border-color: rgba(255,255,255,0.03);
+}
 
 .vl-btn {
   width: 100%;
-  margin-top: 22px;
-  background: #a01010;
-  color: #fff;
-  border: 1px solid rgba(196,28,28,0.4);
-  border-radius: 3px;
+  margin-top: 20px;
   padding: 13px;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-
-.vl-btn:hover { background: #c41c1c; box-shadow: 0 4px 24px rgba(160,16,16,0.35); }
-
-.vl-err {
-  margin-top: 14px;
-  padding: 9px 12px;
-  background: rgba(160,16,16,0.1);
-  border: 1px solid rgba(160,16,16,0.25);
+  background: #a01010;
+  color: rgba(255,255,255,0.92);
+  border: none;
   border-radius: 2px;
   font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  color: #c41c1c;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vl-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.vl-btn:hover {
+  background: #be1414;
+  box-shadow: 0 6px 32px rgba(160,16,16,0.45), 0 0 60px rgba(160,16,16,0.15);
+}
+
+.vl-btn:active { transform: scale(0.99); }
+
+/* Shimmer on hover */
+.vl-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; bottom: 0;
+  width: 60%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transition: left 0.55s ease;
+  pointer-events: none;
+}
+.vl-btn:hover::after { left: 160%; }
+
+.vl-err {
+  margin-top: 12px;
+  padding: 9px 12px;
+  background: rgba(160,16,16,0.07);
+  border: 1px solid rgba(160,16,16,0.2);
+  border-radius: 2px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  color: rgba(196,28,28,0.9);
   text-align: center;
   display: none;
 }
@@ -535,10 +635,11 @@
   margin-top: 20px;
   font-family: 'DM Mono', monospace;
   font-size: 8px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(80,80,96,0.4);
+  color: rgba(80,80,96,0.25);
   text-align: center;
+  animation: vlFadeUp 1s 0.5s cubic-bezier(0.16,1,0.3,1) both;
 }
 
 @keyframes vl-shake {
@@ -546,28 +647,37 @@
   20%,60% { transform: translateX(-6px); }
   40%,80% { transform: translateX(6px); }
 }
-.vl-shake { animation: vl-shake 0.4s ease; }
 </style>
 
 <div id="vce-login">
-  <div class="vl-box">
-    <div class="vl-logo"><img src="logo.png" alt="VCE Logistics"></div>
-    <div class="vl-title">VCE Logistics &nbsp;—&nbsp; Dispatch Portal</div>
-    <div class="vl-field">
-      <label class="vl-label" for="vl-user">Username</label>
-      <input class="vl-input" id="vl-user" type="text" autocomplete="username" value="dispatch" spellcheck="false">
+  <div class="vl-inner">
+
+    <div class="vl-logo">
+      <img src="logo.png" alt="VCE Logistics">
     </div>
-    <div class="vl-field">
-      <label class="vl-label" for="vl-pass">Password</label>
-      <input class="vl-input" id="vl-pass" type="password" autocomplete="current-password" placeholder="">
+    <div class="vl-name">VCE Logistics</div>
+    <div class="vl-rule"></div>
+
+    <div class="vl-card">
+      <div class="vl-card-eyebrow">Dispatch Portal &nbsp;&mdash;&nbsp; Sign In</div>
+
+      <div class="vl-field">
+        <label class="vl-label" for="vl-user">Username</label>
+        <input class="vl-input" id="vl-user" type="text" value="dispatch" readonly>
+      </div>
+      <div class="vl-field">
+        <label class="vl-label" for="vl-pass">Password</label>
+        <input class="vl-input" id="vl-pass" type="password" autocomplete="current-password" autofocus>
+      </div>
+
+      <button class="vl-btn" onclick="vlSubmit()">Sign In</button>
+      <div class="vl-err" id="vl-err">Incorrect password</div>
     </div>
-    <button class="vl-btn" onclick="vlSubmit()">Sign In</button>
-    <div class="vl-err" id="vl-err">Incorrect username or password</div>
+
     <div class="vl-footer">Internal use only &nbsp;&mdash;&nbsp; VCE Logistics</div>
   </div>
 </div>
 
-<script>
 // ── LOGIN CREDENTIALS — change these ──
 var VL_USERS = {
   "dispatch": "dvc2019office",
