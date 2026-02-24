@@ -405,7 +405,9 @@
 <body>
 
 <style>
-/* ── LOGIN SCREEN ── */
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
 #vce-login {
   position: fixed;
   inset: 0;
@@ -418,28 +420,30 @@
   overflow: hidden;
 }
 
-/* Deep red glow from top */
+/* Atmospheric red glow */
 #vce-login::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(150,12,12,0.22) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 40% at 50% 108%, rgba(100,8,8,0.1) 0%, transparent 65%);
+    radial-gradient(ellipse 100% 65% at 50% -8%, rgba(150,12,12,0.24) 0%, transparent 62%),
+    radial-gradient(ellipse 60% 45% at 50% 110%, rgba(100,8,8,0.1) 0%, transparent 60%);
   pointer-events: none;
+  z-index: 0;
 }
 
-/* Grid overlay */
+/* Subtle grid texture */
 #vce-login::after {
   content: '';
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.016) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.016) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
   background-size: 52px 52px;
   pointer-events: none;
-  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 100%);
+  z-index: 0;
+  mask-image: radial-gradient(ellipse 75% 75% at 50% 50%, black 0%, transparent 100%);
 }
 
 .vl-inner {
@@ -449,60 +453,56 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   padding: 24px;
 }
 
-/* LOGO */
+/* ── LOGO ── */
 .vl-logo {
-  animation: vlLogoIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+  animation: vlLogoIn 1.4s cubic-bezier(0.16,1,0.3,1) both;
+  will-change: transform, opacity;
 }
 
-.vl-logo img {
-  height: 160px;
+#vl-hero-img {
+  height: 200px;
   width: auto;
   display: block;
-  filter: drop-shadow(0 0 48px rgba(180,20,20,0.3)) drop-shadow(0 0 96px rgba(140,10,10,0.12));
-  animation: vlFloat 8s ease-in-out infinite;
+  filter: drop-shadow(0 0 60px rgba(180,20,20,0.35)) drop-shadow(0 0 120px rgba(140,10,10,0.15));
+  animation: vlFloat 9s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform, filter;
 }
 
 @keyframes vlFloat {
-  0%,100% { transform: translateY(0); filter: drop-shadow(0 0 48px rgba(180,20,20,0.3)) drop-shadow(0 0 96px rgba(140,10,10,0.12)); }
-  50%      { transform: translateY(-10px); filter: drop-shadow(0 0 64px rgba(180,20,20,0.45)) drop-shadow(0 0 120px rgba(140,10,10,0.2)); }
+  0%,100% { transform: translateY(0);     filter: drop-shadow(0 0 60px rgba(180,20,20,0.35)) drop-shadow(0 0 120px rgba(140,10,10,0.15)); }
+  50%      { transform: translateY(-12px); filter: drop-shadow(0 0 80px rgba(180,20,20,0.52)) drop-shadow(0 0 160px rgba(140,10,10,0.25)); }
 }
 
 @keyframes vlLogoIn {
-  from { opacity: 0; transform: scale(0.88) translateY(-16px); }
+  from { opacity: 0; transform: scale(0.82) translateY(-20px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 /* Company name */
 .vl-name {
   font-family: 'Outfit', sans-serif;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.55em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.15);
-  margin-bottom: 52px;
-  animation: vlUp 1s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+  margin-bottom: 48px;
+  animation: vlUp 1s 0.35s cubic-bezier(0.16,1,0.3,1) both;
 }
 
-/* FORM — no card, just floating fields */
+/* ── FORM ── */
 .vl-form {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
   animation: vlUp 1s 0.5s cubic-bezier(0.16,1,0.3,1) both;
 }
 
-.vl-field {
-  width: 100%;
-  margin-bottom: 10px;
-}
+.vl-field { margin-bottom: 10px; }
 
 .vl-label {
   display: block;
@@ -516,99 +516,94 @@
 
 .vl-input {
   width: 100%;
-  background: rgba(255,255,255,0.03);
+  background: transparent;
   border: none;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   border-radius: 0;
   padding: 12px 4px;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.78);
   font-family: 'DM Mono', monospace;
   font-size: 14px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   outline: none;
   transition: border-color 0.3s ease;
   -webkit-appearance: none;
 }
 
-.vl-input:focus {
-  border-bottom-color: rgba(196,28,28,0.7);
-}
+.vl-input:focus { border-bottom-color: rgba(196,28,28,0.65); }
 
 .vl-input[readonly] {
-  color: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.2);
   cursor: default;
 }
 
-/* Thin red underline accent on focus */
-.vl-field-bar {
+/* Animated red underline on focus */
+.vl-bar {
   height: 1px;
   width: 0;
   background: #c41c1c;
-  transition: width 0.35s ease;
+  transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
   margin-top: -1px;
 }
-.vl-input:focus + .vl-field-bar { width: 100%; }
+.vl-input:focus ~ .vl-bar { width: 100%; }
 
-.vl-divider {
+.vl-sep {
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06) 30%, rgba(255,255,255,0.06) 70%, transparent);
-  margin: 8px 0 24px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05) 30%, rgba(255,255,255,0.05) 70%, transparent);
+  margin: 10px 0 26px;
 }
 
 .vl-btn {
   width: 100%;
   padding: 14px;
   background: transparent;
-  border: 1px solid rgba(160,16,16,0.4);
+  border: 1px solid rgba(160,16,16,0.38);
   border-radius: 2px;
-  color: rgba(196,28,28,0.9);
+  color: rgba(180,28,28,0.9);
   font-family: 'DM Mono', monospace;
   font-size: 9.5px;
   font-weight: 500;
   letter-spacing: 0.34em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
+  transition: background 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
 }
 
 .vl-btn:hover {
-  background: rgba(160,16,16,0.12);
-  border-color: rgba(196,28,28,0.7);
+  background: rgba(160,16,16,0.1);
+  border-color: rgba(196,28,28,0.65);
   color: #e03030;
-  box-shadow: 0 0 40px rgba(160,16,16,0.15), 0 0 80px rgba(160,16,16,0.06);
+  box-shadow: 0 0 48px rgba(160,16,16,0.18), 0 0 96px rgba(160,16,16,0.07);
 }
 
 .vl-btn:active { transform: scale(0.99); }
 
-/* Shimmer sweep */
 .vl-btn::after {
   content: '';
   position: absolute;
-  top: 0; bottom: 0;
-  left: -80%;
-  width: 60%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-  transition: left 0.6s ease;
+  top: 0; bottom: 0; left: -80%;
+  width: 55%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.055), transparent);
+  transition: left 0.65s ease;
   pointer-events: none;
 }
-.vl-btn:hover::after { left: 140%; }
+.vl-btn:hover::after { left: 150%; }
 
 .vl-err {
-  margin-top: 14px;
+  margin-top: 16px;
   font-family: 'DM Mono', monospace;
   font-size: 8.5px;
   letter-spacing: 0.2em;
-  color: rgba(196,28,28,0.7);
+  color: rgba(196,28,28,0.72);
   text-align: center;
   display: none;
-  animation: vlUp 0.3s ease both;
 }
 
 .vl-footer {
-  position: absolute;
+  position: fixed;
   bottom: 28px;
   font-family: 'DM Mono', monospace;
   font-size: 7.5px;
@@ -623,34 +618,72 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── TRANSITION OVERLAY ── */
+#vl-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9999998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: #050507;
+}
+
+#vl-transition.active {
+  display: flex;
+}
+
+#vl-t-logo {
+  position: absolute;
+  will-change: transform, opacity;
+}
+
+#vl-t-logo img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 60px rgba(180,20,20,0.4));
+}
+
+/* Final flash overlay */
+#vl-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999999;
+  background: #08080a;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
 @keyframes vl-shake {
   0%,100% { transform: translateX(0); }
-  20%,60% { transform: translateX(-8px); }
-  40%,80% { transform: translateX(8px); }
+  20%,60%  { transform: translateX(-7px); }
+  40%,80%  { transform: translateX(7px); }
 }
 </style>
 
 <div id="vce-login">
   <div class="vl-inner">
-
     <div class="vl-logo">
-      <img src="logo.png" alt="VCE Logistics">
+      <img id="vl-hero-img" src="logo.png" alt="VCE Logistics">
     </div>
     <div class="vl-name">VCE Logistics</div>
 
     <div class="vl-form">
       <div class="vl-field">
-        <label class="vl-label" for="vl-user">Username</label>
+        <label class="vl-label">Username</label>
         <input class="vl-input" id="vl-user" type="text" value="dispatch" readonly>
-        <div class="vl-field-bar"></div>
+        <div class="vl-bar"></div>
       </div>
 
-      <div class="vl-divider"></div>
+      <div class="vl-sep"></div>
 
       <div class="vl-field">
-        <label class="vl-label" for="vl-pass">Password</label>
+        <label class="vl-label">Password</label>
         <input class="vl-input" id="vl-pass" type="password" autocomplete="current-password" autofocus>
-        <div class="vl-field-bar"></div>
+        <div class="vl-bar"></div>
       </div>
 
       <div style="height:28px"></div>
@@ -658,16 +691,21 @@
       <button class="vl-btn" onclick="vlSubmit()">Sign In</button>
       <div class="vl-err" id="vl-err">Incorrect password</div>
     </div>
-
   </div>
-  <div class="vl-footer">Internal use only &nbsp;&mdash;&nbsp; VCE Logistics</div>
+  <div class="vl-footer">Internal use only &mdash; VCE Logistics</div>
 </div>
+
+<!-- Transition element — logo flies to header position -->
+<div id="vl-transition">
+  <div id="vl-t-logo"><img src="logo.png" alt=""></div>
+</div>
+<div id="vl-flash"></div>
 
 <script>
 // ── LOGIN CREDENTIALS — change these ──
 var VL_USERS = {
-  "dispatch": "dvc2019office",
-  "manager":  "dvc2019office"
+  "dispatch": "vce2024",
+  "manager":  "vce2024"
 };
 // ──────────────────────────────────────
 
@@ -679,28 +717,87 @@ function vlSubmit() {
   var user = document.getElementById('vl-user').value.trim().toLowerCase();
   var pass = document.getElementById('vl-pass').value;
   var err  = document.getElementById('vl-err');
-  var card = document.querySelector('.vl-card');
 
   if (VL_USERS[user] && VL_USERS[user] === pass) {
     sessionStorage.setItem('vce_auth', '1');
-    var login = document.getElementById('vce-login');
-    login.style.opacity = '0';
-    login.style.transition = 'opacity 0.5s ease';
-    setTimeout(function() { login.style.display = 'none'; }, 500);
+    vlTransition();
   } else {
     err.style.display = 'block';
-    card.style.animation = 'none';
-    void card.offsetWidth;
-    card.style.animation = 'vl-shake 0.4s ease';
+    var form = document.querySelector('.vl-form');
+    form.style.animation = 'none';
+    void form.offsetWidth;
+    form.style.animation = 'vl-shake 0.4s ease';
     document.getElementById('vl-pass').value = '';
     document.getElementById('vl-pass').focus();
   }
 }
 
+function vlTransition() {
+  var heroImg  = document.getElementById('vl-hero-img');
+  var heroRect = heroImg.getBoundingClientRect();
+
+  var overlay  = document.getElementById('vl-transition');
+  var tLogo    = document.getElementById('vl-t-logo');
+  var tImg     = tLogo.querySelector('img');
+
+  // Position flying logo exactly over hero logo
+  tLogo.style.position = 'fixed';
+  tLogo.style.left     = heroRect.left + 'px';
+  tLogo.style.top      = heroRect.top  + 'px';
+  tLogo.style.width    = heroRect.width  + 'px';
+  tLogo.style.height   = heroRect.height + 'px';
+  tImg.style.width     = '100%';
+  tImg.style.height    = '100%';
+  tImg.style.objectFit = 'contain';
+  tImg.style.filter    = 'drop-shadow(0 0 60px rgba(180,20,20,0.4))';
+
+  overlay.classList.add('active');
+  overlay.style.background = 'transparent';
+
+  // Fade out login behind it
+  var login = document.getElementById('vce-login');
+  login.style.transition = 'opacity 0.3s ease';
+  login.style.opacity    = '0';
+
+  // Target position: portal header logo (centered, near top)
+  var targetSize = 90;
+  var targetX    = (window.innerWidth  / 2) - (targetSize / 2);
+  var targetY    = 84; // matches portal hero padding + gap
+
+  setTimeout(function() {
+    login.style.display = 'none';
+
+    // Fly and shrink to portal logo position
+    tLogo.style.transition = 'left 0.7s cubic-bezier(0.76,0,0.24,1), top 0.7s cubic-bezier(0.76,0,0.24,1), width 0.7s cubic-bezier(0.76,0,0.24,1), height 0.7s cubic-bezier(0.76,0,0.24,1)';
+    tLogo.style.left   = targetX + 'px';
+    tLogo.style.top    = targetY + 'px';
+    tLogo.style.width  = targetSize + 'px';
+    tLogo.style.height = targetSize + 'px';
+    tImg.style.transition = 'filter 0.7s ease';
+    tImg.style.filter     = 'drop-shadow(0 0 16px rgba(180,20,20,0.2))';
+
+    // Flash reveal portal
+    setTimeout(function() {
+      var flash = document.getElementById('vl-flash');
+      flash.style.transition = 'opacity 0.25s ease';
+      flash.style.opacity    = '1';
+
+      setTimeout(function() {
+        overlay.classList.remove('active');
+        overlay.style.display = 'none';
+        flash.style.opacity   = '0';
+      }, 220);
+    }, 680);
+
+  }, 260);
+}
+
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
     var login = document.getElementById('vce-login');
-    if (login && login.style.display !== 'none') vlSubmit();
+    if (login && login.style.display !== 'none' && login.style.opacity !== '0') {
+      vlSubmit();
+    }
   }
 });
 </script>
