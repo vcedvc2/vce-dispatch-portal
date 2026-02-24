@@ -403,6 +403,214 @@
 </style>
 </head>
 <body>
+
+<style>
+/* ── LOGIN SCREEN ── */
+#vce-login {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #08080a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+#vce-login::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 400px;
+  background: radial-gradient(ellipse 70% 100% at 50% -10%, rgba(160,16,16,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.vl-box {
+  width: 100%;
+  max-width: 380px;
+  background: #101014;
+  border: 1px solid rgba(160,16,16,0.28);
+  border-radius: 4px;
+  padding: 40px 36px 36px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.8), 0 0 80px rgba(160,16,16,0.06);
+}
+
+.vl-box::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #c41c1c, #a01010);
+}
+
+.vl-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.vl-logo img {
+  height: 64px;
+  width: auto;
+}
+
+.vl-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #505060;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.vl-field {
+  margin-bottom: 14px;
+}
+
+.vl-label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #505060;
+  margin-bottom: 7px;
+}
+
+.vl-input {
+  width: 100%;
+  background: #08080a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 3px;
+  padding: 11px 14px;
+  color: #f0f0f2;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.vl-input:focus { border-color: rgba(160,16,16,0.5); }
+
+.vl-btn {
+  width: 100%;
+  margin-top: 22px;
+  background: #a01010;
+  color: #fff;
+  border: 1px solid rgba(196,28,28,0.4);
+  border-radius: 3px;
+  padding: 13px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.vl-btn:hover { background: #c41c1c; box-shadow: 0 4px 24px rgba(160,16,16,0.35); }
+
+.vl-err {
+  margin-top: 14px;
+  padding: 9px 12px;
+  background: rgba(160,16,16,0.1);
+  border: 1px solid rgba(160,16,16,0.25);
+  border-radius: 2px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: #c41c1c;
+  text-align: center;
+  display: none;
+}
+
+.vl-footer {
+  margin-top: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(80,80,96,0.4);
+  text-align: center;
+}
+
+@keyframes vl-shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-6px); }
+  40%,80% { transform: translateX(6px); }
+}
+.vl-shake { animation: vl-shake 0.4s ease; }
+</style>
+
+<div id="vce-login">
+  <div class="vl-box">
+    <div class="vl-logo"><img src="logo.png" alt="VCE Logistics"></div>
+    <div class="vl-title">VCE Logistics &nbsp;—&nbsp; Dispatch Portal</div>
+    <div class="vl-field">
+      <label class="vl-label" for="vl-user">Username</label>
+      <input class="vl-input" id="vl-user" type="text" autocomplete="username" placeholder="" spellcheck="false">
+    </div>
+    <div class="vl-field">
+      <label class="vl-label" for="vl-pass">Password</label>
+      <input class="vl-input" id="vl-pass" type="password" autocomplete="current-password" placeholder="">
+    </div>
+    <button class="vl-btn" onclick="vlSubmit()">Sign In</button>
+    <div class="vl-err" id="vl-err">Incorrect username or password</div>
+    <div class="vl-footer">Internal use only &nbsp;&mdash;&nbsp; VCE Logistics</div>
+  </div>
+</div>
+
+<script>
+// ── LOGIN CREDENTIALS — change these ──
+var VL_USERS = {
+  "dispatch":  "dvc2019office",
+  "manager":   "dvc2019office",
+  "admin":     "dvc2019office"
+};
+// ──────────────────────────────────────
+
+// Check if already authenticated this session
+if (sessionStorage.getItem('vce_auth') === '1') {
+  document.getElementById('vce-login').style.display = 'none';
+}
+
+function vlSubmit() {
+  var user = document.getElementById('vl-user').value.trim().toLowerCase();
+  var pass = document.getElementById('vl-pass').value;
+  var err  = document.getElementById('vl-err');
+  var box  = document.querySelector('.vl-box');
+
+  if (VL_USERS[user] && VL_USERS[user] === pass) {
+    sessionStorage.setItem('vce_auth', '1');
+    var login = document.getElementById('vce-login');
+    login.style.opacity = '0';
+    login.style.transition = 'opacity 0.4s ease';
+    setTimeout(function() { login.style.display = 'none'; }, 400);
+  } else {
+    err.style.display = 'block';
+    box.style.animation = 'none';
+    setTimeout(function() {
+      box.style.animation = 'vl-shake 0.4s ease';
+    }, 10);
+    document.getElementById('vl-pass').value = '';
+    document.getElementById('vl-pass').focus();
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('vce-login').style.display !== 'none') {
+    vlSubmit();
+  }
+});
+</script>
+
 <div class="wrap">
 
   <div class="hero">
@@ -481,13 +689,6 @@
       <div class="card-meta"><div class="pip pip-amber"></div><span class="card-tag">Daily Planning</span></div>
       <div class="card-title">Daily Van Sorter</div>
       <div class="card-desc">Sort and assign today's vans from the daily planner. Use at the start of each shift to organize van assignments before dispatch.</div>
-      <div class="card-foot"><span class="card-action">Open Planner</span><span class="card-arrow">&#8599;</span></div>
-    </a>
-
-    <a href="https://docs.google.com/spreadsheets/d/1vstEgwq5SfD0r89a3DggSOgsWDPcq_A6pAgv2j_9wGY/edit?gid=1443632712#gid=1443632712" target="_blank" class="card">
-      <div class="card-meta"><div class="pip pip-blue"></div><span class="card-tag">Planning</span></div>
-      <div class="card-title">Daily Planner</div>
-      <div class="card-desc">Full daily operations planner — route assignments, driver scheduling, and shift planning.</div>
       <div class="card-foot"><span class="card-action">Open Planner</span><span class="card-arrow">&#8599;</span></div>
     </a>
 
